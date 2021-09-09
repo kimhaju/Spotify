@@ -28,6 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.makeKeyAndVisible()
         self.window = window
         
+//        나중에 에러 잡을때 또 필요할지 모르니까 잠시 주석처리
+//        AuthManager.shared.refreshIfNeeded { success in
+//            print(success)
+//        }
         return true
     }
 
