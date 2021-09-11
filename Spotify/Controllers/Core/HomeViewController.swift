@@ -21,7 +21,7 @@ class HomeViewController: UIViewController {
         )
         fetchData()
     }
-    
+    //->5가지 임의의 추천을 받기
     private func fetchData() {
         APICaller.shared.getRecommededGenres { result in
             switch result {
