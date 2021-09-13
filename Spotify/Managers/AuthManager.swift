@@ -12,10 +12,10 @@ final class AuthManager {
     private var refreshingToken = false
     
     struct Constants {
-        static let clientID = "9e5c28f29f4f439d9c674c7ebe4ca888"
-        static let clientSecret = "6a328b701d074925b10b409ee257df1a"
-        static let tokenAPIURL = "https://accounts.spotify.com/api/token"
-        static let redirectURI = "http://localhost:8888/callback/"
+        static let clientID = "보안"
+        static let clientSecret = "보안"
+        static let tokenAPIURL = "보안"
+        static let redirectURI = "보안"
         //->약관은 이정도면 충분할거 같아서 이것만 추가 
         static let scopes = "user-read-private%20playlist-modify-public%20playlist-read-private%20playlist-modify-private%20user-follow-read%20user-library-modify%20user-library-read%20user-read-email"
         /*
