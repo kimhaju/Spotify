@@ -11,8 +11,8 @@ import UIKit
 enum BrowseSectionType {
     //->직접 코딩하기보다는 열거형으로 간편하게 할수 있다.
     case newReleases(viewModels: [NewReleaseCellViewModel]) // 1
-    case featuredPlaylists(viewsModels: [NewReleaseCellViewModel]) // 2
-    case recommendedTracks(viewsModels: [NewReleaseCellViewModel]) // 3
+    case featuredPlaylists(viewsModels: [FeaturedPlaylistCellViewModel]) // 2
+    case recommendedTracks(viewsModels: [RecommendedTrackCellViewModel]) // 3
 }
 
 class HomeViewController: UIViewController {
@@ -75,7 +75,7 @@ class HomeViewController: UIViewController {
         group.enter()
         group.enter()
         group.enter()
-        print("데이터 매피 시작")
+        print("데이터 매칭 시작")
         
         var newRealeses: NewRealsesResponse?
         var featuredPlaylist: FeaturedPlayListsResponse?
@@ -99,7 +99,7 @@ class HomeViewController: UIViewController {
             defer {
                 group.leave()
             }
-            
+
             switch result {
             case .success(let model):
                 featuredPlaylist = model
@@ -142,7 +142,7 @@ class HomeViewController: UIViewController {
             guard let newAlbums = newRealeses?.albums.items,
                   let playlists = featuredPlaylist?.playlists.items,
                   let trakcs = recommendations?.tracks else {
-                fatalError("모델이 존재하지 않습니다.")
+//                fatalError("모델이 존재하지 않습니다.")
                 return
             }
             print("뷰 모델 구성")
@@ -169,9 +169,18 @@ class HomeViewController: UIViewController {
                 artistName: $0.artists.first?.name ?? "-"
             )
         })))
-        sections.append(.featuredPlaylists(viewsModels: []))
+        sections.append(.featuredPlaylists(viewsModels: playlists.compactMap({
+            return FeaturedPlaylistCellViewModel(name:  $0.name,
+                                                 artworkURL: URL(string: $0.images.first?.url ?? ""),
+                                                 creatorName: $0.owner.display_name
+            )
+        })))
         
-        sections.append(.recommendedTracks(viewsModels: []))
+        sections.append(.recommendedTracks(viewsModels: tracks.compactMap({
+            return RecommendedTrackCellViewModel(name: $0.name,
+                                                 artistName: $0.artists.first?.name ?? "-",
+                                                 artworkURL: URL(string: $0.album.images.first?.url ?? ""))
+        })))
         
         collectionView.reloadData()
     }
@@ -225,7 +234,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             ) as? FeaturedPlaylistCollectionViewCell else {
                 return UICollectionViewCell()
             }
-            cell.backgroundColor = .blue
+            cell.configure(with: viewModels[indexPath.row])
             return cell
            
         case .recommendedTracks( let viewModels):
@@ -235,7 +244,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             ) as? RecommendedTrackCollectionViewCell else {
                 return UICollectionViewCell()
             }
-            cell.backgroundColor = .orange
+            cell.configure(with: viewModels[indexPath.row])
             return cell
             
         }
