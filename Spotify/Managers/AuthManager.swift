@@ -13,7 +13,7 @@ final class AuthManager {
     
     struct Constants {
         //->914 주의해야할점: 만지다 보니까 실수로 토큰글자를 지우거나 빼먹은게 있었다.
-        // 만지면서 조심하기 
+        // 만지면서 조심하기
         static let clientID = "9e5c28f29f4f439d9c674c7ebe4ca888"
         static let clientSecret = "6a328b701d074925b10b409ee257df1a"
         static let tokenAPIURL = "https://accounts.spotify.com/api/token"
