@@ -13,6 +13,17 @@ enum BrowseSectionType {
     case newReleases(viewModels: [NewReleaseCellViewModel]) // 1
     case featuredPlaylists(viewsModels: [FeaturedPlaylistCellViewModel]) // 2
     case recommendedTracks(viewsModels: [RecommendedTrackCellViewModel]) // 3
+    
+    var title: String {
+        switch self {
+        case .newReleases:
+            return "최신음악"
+        case .featuredPlaylists:
+            return "재생목록"
+        case .recommendedTracks:
+            return "추천목록"
+        }
+    }
 }
 
 class HomeViewController: UIViewController {
@@ -66,6 +77,12 @@ class HomeViewController: UIViewController {
         collectionView.register(FeaturedPlaylistCollectionViewCell.self, forCellWithReuseIdentifier: FeaturedPlaylistCollectionViewCell.identifier)
         
         collectionView.register(RecommendedTrackCollectionViewCell.self, forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier)
+        
+        collectionView.register(
+            TitleHeaderCollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: TitleHeaderCollectionReusableView.identifier
+        )
         
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -258,6 +275,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             
         }
     }
+    // 플레이 리스트 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         let section = sections[indexPath.section]
@@ -279,9 +297,34 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             break
         }
     }
-    
+    //->타이틀 헤더 뷰
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let header = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: TitleHeaderCollectionReusableView.identifier,
+            for: indexPath
+        ) as? TitleHeaderCollectionReusableView, kind == UICollectionView.elementKindSectionHeader else  {
+            return UICollectionReusableView()
+        }
+        let section = indexPath.section
+        //->신곡, 플레이 리스트, 트랙에 맞게 이름 조절 할수 있도록
+        let title = sections[section].title
+        header.configure(with: title)
+        return header
+    }
     
    static func createSectionLayout(section: Int) -> NSCollectionLayoutSection {
+        let supplementaryViews = [
+            NSCollectionLayoutBoundarySupplementaryItem(
+                layoutSize: NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1),
+                    heightDimension: .absolute(50)
+                ),
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+    ]
+    
         switch section {
         case 0:
             // 아이템
@@ -316,6 +359,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             // 섹션
             let section = NSCollectionLayoutSection(group: horizontalGroup)
             section.orthogonalScrollingBehavior = .groupPaging
+            section.boundarySupplementaryItems = supplementaryViews
             return section
             
         case 1:
@@ -350,6 +394,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             // 섹션
             let section = NSCollectionLayoutSection(group: horizontalGroup)
             section.orthogonalScrollingBehavior = .continuous
+            section.boundarySupplementaryItems = supplementaryViews
             return section
             
         case 2:
@@ -375,6 +420,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             
             // 섹션
             let section = NSCollectionLayoutSection(group: group)
+            section.boundarySupplementaryItems = supplementaryViews
             return section
             
         default:
@@ -397,6 +443,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
                 count: 1
             )
             let section = NSCollectionLayoutSection(group: group)
+            section.boundarySupplementaryItems = supplementaryViews
             return section
         }
     }
