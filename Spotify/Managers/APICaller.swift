@@ -149,7 +149,7 @@ final class APICaller {
             task.resume()
         }
     }
-    //->자꾸 여기서 문제발생 왜?
+ 
     public func getRecommendations(genres: Set<String>, completion: @escaping ((Result<RecommendationsResponse, Error>)-> Void)) {
         let seeds = genres.joined(separator: ",")
         createRequest(with: URL(string: Constants.baseAPIURL + "/recommendations?limit=40&seed_genres=\(seeds)"),
@@ -238,6 +238,38 @@ final class APICaller {
             task.resume()
         }
     }
+    // MARK: -Search
+    public func search(with query: String, completion: @escaping (Result<[SearchResult], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseAPIURL+"/search?limit=10&type=album,artist,playlist,track&q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"),
+                      type: .GET)
+        { request in
+            print(request.url?.absoluteString ?? "x")
+            let task = URLSession.shared.dataTask(with: request){ data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedTogetData))
+                    return
+                }
+                
+                //->스위프트가 접두어를 예상할수 있는 경우는 생략해도 된다.
+                do {
+                    let result = try JSONDecoder().decode(SearchResultResponse.self, from: data)
+                    
+                    var searchResults: [SearchResult] = []
+                    searchResults.append(contentsOf: result.tracks.items.compactMap({ .track(model: $0)}))
+                    searchResults.append(contentsOf: result.albums.items.compactMap({ .album(model: $0)}))
+                    searchResults.append(contentsOf: result.artists.items.compactMap({ .artist(model: $0)}))
+                    searchResults.append(contentsOf: result.playlists.items.compactMap({ .playlist(model: $0)}))
+                    
+                    completion(.success(searchResults))
+                }
+                catch {
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
     // MARK: -private
     
     enum HTTPMethod: String {
