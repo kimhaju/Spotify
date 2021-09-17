@@ -105,8 +105,7 @@ final class APICaller {
         }
     }
     // MARK: -Browse
-    
-    
+
     /// 새로운 릴리즈 
     public func getNewReleases(completion: @escaping ((Result<NewRealsesResponse, Error>)) -> Void){
         createRequest(with: URL(string: Constants.baseAPIURL + "/browse/new-releases?limit=50"), type: .GET) { request in
@@ -195,6 +194,46 @@ final class APICaller {
                 catch {
                     completion(.failure(error))
                 }
+            }
+            task.resume()
+        }
+    }
+    // MARK: -Category
+    public func getCategories(completion: @escaping (Result<[Category], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseAPIURL + "/browse/categories?limit=50"), type: .GET){ request in
+            let task = URLSession.shared.dataTask(with: request){ data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedTogetData))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(AllCategoreisResponse.self, from: data)
+                    completion(.success(result.categories.items))
+                }
+                catch {
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    public func getCategoryPlaylists(category: Category, completion: @escaping (Result<[Playlist], Error>) -> Void){
+        createRequest(with: URL(string: Constants.baseAPIURL + "/browse/categories/\(category.id)/playlists?limit=50"), type: .GET){ request in
+            let task = URLSession.shared.dataTask(with: request){ data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedTogetData))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(CategoryPlaylistsResponse.self, from: data)
+                    let playlists = result.playlists.items
+                    completion(.success(playlists))
+                }
+                catch {
+                    completion(.failure(error))
+                }
+                
             }
             task.resume()
         }
