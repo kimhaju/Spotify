@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		876145638FA7C0C2DEC15FEE /* Pods_Spotify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED1C4B8C95542706D76BD09F /* Pods_Spotify.framework */; };
+		9A117DC926F5B7890054B327 /* PlaybackPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A117DC826F5B7890054B327 /* PlaybackPresenter.swift */; };
+		9A117DCD26F603340054B327 /* PlayerControllView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A117DCC26F603340054B327 /* PlayerControllView.swift */; };
 		9A36061D26EB97F400BE4240 /* FeaturedPlayListsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A36061C26EB97F400BE4240 /* FeaturedPlayListsResponse.swift */; };
 		9A77054F26EC420100FE24F3 /* RecommendedGenresResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A77054E26EC420100FE24F3 /* RecommendedGenresResponse.swift */; };
 		9A77055326EC4FF800FE24F3 /* RecommendationsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A77055226EC4FF800FE24F3 /* RecommendationsResponse.swift */; };
@@ -65,6 +67,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9A117DC826F5B7890054B327 /* PlaybackPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackPresenter.swift; sourceTree = "<group>"; };
+		9A117DCC26F603340054B327 /* PlayerControllView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControllView.swift; sourceTree = "<group>"; };
 		9A36061C26EB97F400BE4240 /* FeaturedPlayListsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturedPlayListsResponse.swift; sourceTree = "<group>"; };
 		9A77054E26EC420100FE24F3 /* RecommendedGenresResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedGenresResponse.swift; sourceTree = "<group>"; };
 		9A77055226EC4FF800FE24F3 /* RecommendationsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsResponse.swift; sourceTree = "<group>"; };
@@ -155,6 +159,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		9A117DC726F5B74D0054B327 /* Presenter */ = {
+			isa = PBXGroup;
+			children = (
+				9A117DC826F5B7890054B327 /* PlaybackPresenter.swift */,
+			);
+			path = Presenter;
+			sourceTree = "<group>";
+		};
 		9A77055526EC80E400FE24F3 /* Browse */ = {
 			isa = PBXGroup;
 			children = (
@@ -195,6 +207,7 @@
 		9AF76FCC26E87D9D00D69B09 /* Spotify */ = {
 			isa = PBXGroup;
 			children = (
+				9A117DC726F5B74D0054B327 /* Presenter */,
 				9AF76FE726E87E6C00D69B09 /* Resources */,
 				9AF76FE626E87E3F00D69B09 /* Managers */,
 				9AF76FE526E87E2F00D69B09 /* ViewModels */,
@@ -225,6 +238,7 @@
 				9AD84AE226F352D600C2CB3A /* TitleHeaderCollectionReusableView.swift */,
 				9AD84AE526F36B9800C2CB3A /* AlbumTrackCollectionViewCell.swift */,
 				9AD84AEB26F3972A00C2CB3A /* CategoryCollectionViewCell.swift */,
+				9A117DCC26F603340054B327 /* PlayerControllView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -468,6 +482,7 @@
 				9AD84AFC26F4B2D600C2CB3A /* SearchResult.swift in Sources */,
 				9AC56D8B26F230FB002CBD6D /* PlaylistHeaderCollectionReusableView.swift in Sources */,
 				9AF76FF126E882BE00D69B09 /* LibraryViewController.swift in Sources */,
+				9A117DC926F5B7890054B327 /* PlaybackPresenter.swift in Sources */,
 				9AF7701C26E8856500D69B09 /* Artist.swift in Sources */,
 				9AF7702926E9E9BE00D69B09 /* SettingsModels.swift in Sources */,
 				9AF7700726E8841D00D69B09 /* PlaylistViewController.swift in Sources */,
@@ -477,6 +492,7 @@
 				9AC56D8526F1F66D002CBD6D /* AlbumDetailsResponse.swift in Sources */,
 				9A8B75DC26EB85BF00190AA0 /* NewReleaseResponse.swift in Sources */,
 				9AF7701026E884C100D69B09 /* APICaller.swift in Sources */,
+				9A117DCD26F603340054B327 /* PlayerControllView.swift in Sources */,
 				9A36061D26EB97F400BE4240 /* FeaturedPlayListsResponse.swift in Sources */,
 				9AD84AF226F494E700C2CB3A /* CategoryCollectionViewCellViewModel.swift in Sources */,
 				9AF76FFE26E8839700D69B09 /* SettingsViewController.swift in Sources */,
