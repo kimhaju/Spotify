@@ -25,7 +25,8 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.backgroundColor = .systemBackground
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(SearchResultDefaultTableViewCell.self, forCellReuseIdentifier: SearchResultDefaultTableViewCell.identifier)
+        tableView.register(SearchResultSubtitleTableViewCell.self, forCellReuseIdentifier: SearchResultSubtitleTableViewCell.identifier)
         tableView.isHidden = true
         return tableView
     }()
@@ -50,6 +51,9 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
                 case .artist: return true
                 default: return false
         }})
+        //->아티스트는 현재 뜨는 상태 근데 왜 화면에는 보이지 않을까 원인을 찾아야 한다.
+//        print(artists)
+        // 9.18 해결: 아이덴티 파이어쪽 이름 누락, 중복으로 인해서 보이지 않았던것.
         
         let albums = results.filter(
             { switch $0 {
@@ -70,10 +74,10 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
         }})
         
         self.sections = [
-            SearchSection(title: "Songs", results: tracks),
-            SearchSection(title: "Artists", results: artists),
-            SearchSection(title: "Playlists", results: playlists),
-            SearchSection(title: "Album", results: albums)
+            SearchSection(title: "노래", results: tracks),
+            SearchSection(title: "아티스트", results: artists),
+            SearchSection(title: "플레이리스트", results: playlists),
+            SearchSection(title: "앨범", results: albums)
         ]
         tableView.reloadData()
         tableView.isHidden = results.isEmpty
@@ -88,19 +92,70 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let result = sections[indexPath.section].results[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        
+        //->여기의 역할: 검색 결과를 창으로 띄워줌 
         switch result {
-        case .artist(let model):
-            cell.textLabel?.text = model.name
-        case .album(let model):
-            cell.textLabel?.text = model.name
-        case .track(let model):
-            cell.textLabel?.text = model.name
-        case .playlist(let model):
-            cell.textLabel?.text = model.name
+        case .artist(let artist):
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: SearchResultDefaultTableViewCell.identifier,
+                for: indexPath
+            ) as? SearchResultDefaultTableViewCell else {
+                return UITableViewCell()
+            }
+            let viewModel = SearchResultDefaultTableViewCellViewModel(
+                title: artist.name,
+                imageURL: URL(string: artist.images?.first?.url ?? "")
+            )
+            cell.configure(with: viewModel)
+            return cell
+            
+        case .album(let album):
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: SearchResultSubtitleTableViewCell.identifier,
+                for: indexPath
+            ) as? SearchResultSubtitleTableViewCell else {
+                return UITableViewCell()
+            }
+            let viewModel = SearchResultSubtitleTableViewCellViewModel(
+                title: album.name,
+                subtitle: album.artists.first?.name ?? "",
+                imageURL: URL(string: album.images.first?.url ?? "")
+            )
+            cell.configure(with: viewModel)
+            return cell
+            
+        case .track(let track):
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: SearchResultSubtitleTableViewCell.identifier,
+                for: indexPath
+            ) as? SearchResultSubtitleTableViewCell else {
+                return UITableViewCell()
+            }
+            let viewModel = SearchResultSubtitleTableViewCellViewModel(
+                title: track.name,
+                subtitle: track.artists.first?.name ?? "-",
+                imageURL: URL(string: track.album?.images.first?.url ?? "")
+            )
+            cell.configure(with: viewModel)
+            return cell
+            
+        case .playlist(let playlist):
+            guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: SearchResultSubtitleTableViewCell.identifier,
+            for: indexPath
+        ) as? SearchResultSubtitleTableViewCell else {
+            return UITableViewCell()
         }
+        let viewModel = SearchResultSubtitleTableViewCellViewModel(
+            title: playlist.name,
+            subtitle: playlist.owner.display_name,
+            imageURL: URL(string: playlist.images.first?.url ?? "")
+        )
+        cell.configure(with: viewModel)
         return cell
+        }
     }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let result = sections[indexPath.section].results[indexPath.row]

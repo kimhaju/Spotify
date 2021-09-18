@@ -1,10 +1,11 @@
 //
 //  SearchViewController.swift
 //  Spotify
-//
+//  오류 생겨도 너무 힘들어하지 말고 원인을 찾고 잘 풀어보자 모든 것이 학습의 일환이다.
 //  Created by haju Kim on 2021/09/08.
 //
 
+import SafariServices
 import UIKit
 
 //->검색기능 제공
@@ -100,13 +101,20 @@ class SearchViewController: UIViewController, UISearchResultsUpdating, UISearchB
 
 extension SearchViewController: SearchResultsViewControllerDelegate {
     func didTapResult(_ result: SearchResult) {
+        //->위 항목의 역할: 사용자가 검색 결과를 클릭하면 해당 음원으로 연결 가능.
         switch result {
         case .artist(let model):
-            break
+            guard let url = URL(string: model.external_urls["spotify"] ?? "") else {
+                return
+            }
+            let vc = SFSafariViewController(url: url)
+            present(vc, animated: true)
+            
         case .album(let model):
            let vc = AlbumViewController(album: model)
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
+            
         case .track(let model):
             break
         case .playlist(let model):
