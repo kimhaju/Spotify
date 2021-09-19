@@ -30,13 +30,20 @@ final class PlaybackPresenter {
         if let track = track, tracks.isEmpty {
             return track
         }
-        else if !tracks.isEmpty {
-            return tracks.first
+        else if let player = self.playerQueue, !tracks.isEmpty {
+            let item = player.currentItem
+            let items = player.items()
+            guard let index = items.firstIndex(where: { $0 == item }) else {
+                return nil
+            }
+            return tracks[index]
+            
         }
         return nil
     }
     
     var player: AVPlayer?
+    var playerQueue: AVQueuePlayer?
     
      func startPlayback(
         from viewController: UIViewController,
@@ -53,6 +60,7 @@ final class PlaybackPresenter {
         let vc = PlayerViewController()
         vc.title = track.name
         vc.dataSource = self
+        vc.delegate = self
         viewController.present(UINavigationController(rootViewController: vc), animated: true) { [weak self]  in
             self?.player?.play()
         }
@@ -64,9 +72,78 @@ final class PlaybackPresenter {
     ){
         self.tracks = tracks
         self.track = nil
+        
+        self.playerQueue = AVQueuePlayer(items: tracks.compactMap({
+                //->url 생성
+                guard let url = URL(string: $0.preview_url ?? "") else {
+                    return nil
+                }
+                return AVPlayerItem(url: url)
+            }))
+        self.playerQueue?.volume = 1
+//        self.playerQueue?.volume = 0
+        // 여기서 볼륨설정하면 실제로 재생이 가능! 다만 저작권 문제로 인해서 테스트 할때만 볼륨설정하고 평소에는 0으로 맞춰두기
+        self.playerQueue?.play()
+        
         let vc = PlayerViewController()
+        vc.dataSource = self
+        vc.delegate = self
         viewController.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
+}
+
+//->재생, 다음버튼, 뒤로가기 연결
+extension PlaybackPresenter: PlayerViewControllerDelegate {
+    func didSlideSlider(_ value: Float) {
+        player?.volume = value
+    }
+    
+    func didTapPlayPause() {
+        if let player = player {
+            if player.timeControlStatus == .playing {
+                player.pause()
+            }
+            else if player.timeControlStatus == .paused {
+                player.play()
+            }
+        }
+        else if let player = playerQueue {
+            if player.timeControlStatus == .playing {
+                player.pause()
+            }
+            else if player.timeControlStatus == .paused {
+                player.play()
+            }
+        }
+    }
+    
+    func didTapForward() {
+        if tracks.isEmpty {
+            // 앨범에 재생목록이 없다.
+            player?.pause()
+        }
+        else if let firstItem = playerQueue?.items().first {
+            playerQueue?.pause()
+            playerQueue?.removeAllItems()
+            playerQueue = AVQueuePlayer(items: [firstItem])
+            playerQueue?.play()
+            //->저작권 문제를 위해서는 테스트를 제외하고 볼륨을 항상 0으로
+            playerQueue?.volume = 1
+//            playerQueue?.volume = 0
+        }
+    }
+    
+    func didTapBackward() {
+        if tracks.isEmpty {
+            // 앨범에 재생목록이 없다.
+            player?.pause()
+            player?.play()
+        } else if let player = playerQueue {
+            playerQueue?.advanceToNextItem()
+        }
+    }
+    
+    
 }
 
 extension PlaybackPresenter: PlayerDataSource {
@@ -79,6 +156,7 @@ extension PlaybackPresenter: PlayerDataSource {
     }
     
     var imageURL: URL? {
+        print("images: \(currentTrack?.album?.images.first)")
         return URL(string: currentTrack?.album?.images.first?.url ?? "")
     }
 }
