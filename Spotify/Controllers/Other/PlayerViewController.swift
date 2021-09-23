@@ -23,7 +23,6 @@ class PlayerViewController: UIViewController {
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.backgroundColor = .systemBlue
         return imageView
     }()
     
@@ -72,6 +71,10 @@ class PlayerViewController: UIViewController {
     // 기능: 사용자가 노래를 가져오거나 재생목록에 추가하거나 공유 가능
     @objc private func didTapAction() {
         // 액션
+    }
+    func refreshUI() {
+        
+        configure()
     }
 }
 

@@ -102,17 +102,23 @@ final class PlayerControlsView: UIView {
         clipsToBounds = true
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     @objc func didSlideSlider(_ slider: UISlider){
         let value = slider.value
         delegate?.playerControlsView(self, didSlideSlider: value)
     }
-    
+    // 뒤로가기 버튼 클릭시
     @objc private func didTapBack() {
         delegate?.playerControlsViewDidTapBackwardsButton(self)
     }
+    //->다음버튼 클릭시
     @objc private func didTapNext() {
         delegate?.playerControlsViewDidTapForwardButton(self)
     }
+    //->플레이 버튼 클릭시
     @objc private func didTapPlayPause() {
         self.isPlaying = !isPlaying
         delegate?.playerControlsViewDidTapPlayPauseButton(self)
@@ -123,10 +129,6 @@ final class PlayerControlsView: UIView {
         let play = UIImage(systemName: "play.fill" , withConfiguration: UIImage.SymbolConfiguration(pointSize: 34, weight: .regular))
         
         playPauseButton.setImage(isPlaying ? pause : play, for: .normal)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func layoutSubviews() {

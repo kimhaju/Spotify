@@ -17,30 +17,26 @@ protocol PlayerDataSource: AnyObject {
 }
 
 //->재생을 구현해보자. 실제로 재생할수 있도록
-// 9.19: 재생은 저작권 문제로 인해서 불가능... 재생하려면 일부 오디오 파일을 저장해서 에셋에 담아야 한다. 원하는 곡 한두개 정도 담아서 테스트 하기
 final class PlaybackPresenter {
     
     //->정적인 구현 사용
     static let shared = PlaybackPresenter()
-    
     private var track: AudioTrack?
-    private var tracks =  [AudioTrack]()
+    private var tracks = [AudioTrack]()
+    
+    var index = 0
     
     var currentTrack: AudioTrack? {
         if let track = track, tracks.isEmpty {
             return track
         }
         else if let player = self.playerQueue, !tracks.isEmpty {
-            let item = player.currentItem
-            let items = player.items()
-            guard let index = items.firstIndex(where: { $0 == item }) else {
-                return nil
-            }
             return tracks[index]
-            
         }
         return nil
     }
+    
+    var playerVC: PlayerViewController?
     
     var player: AVPlayer?
     var playerQueue: AVQueuePlayer?
@@ -61,9 +57,10 @@ final class PlaybackPresenter {
         vc.title = track.name
         vc.dataSource = self
         vc.delegate = self
-        viewController.present(UINavigationController(rootViewController: vc), animated: true) { [weak self]  in
+        viewController.present(UINavigationController(rootViewController: vc), animated: true) { [weak self] in
             self?.player?.play()
         }
+        self.playerVC = vc
     }
     
     func startPlayback(
@@ -80,24 +77,20 @@ final class PlaybackPresenter {
                 }
                 return AVPlayerItem(url: url)
             }))
-        self.playerQueue?.volume = 1
-//        self.playerQueue?.volume = 0
-        // 여기서 볼륨설정하면 실제로 재생이 가능! 다만 저작권 문제로 인해서 테스트 할때만 볼륨설정하고 평소에는 0으로 맞춰두기
+        self.playerQueue?.volume = 0.0
         self.playerQueue?.play()
         
         let vc = PlayerViewController()
         vc.dataSource = self
         vc.delegate = self
+        
         viewController.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+        self.playerVC = vc
     }
 }
 
 //->재생, 다음버튼, 뒤로가기 연결
 extension PlaybackPresenter: PlayerViewControllerDelegate {
-    func didSlideSlider(_ value: Float) {
-        player?.volume = value
-    }
-    
     func didTapPlayPause() {
         if let player = player {
             if player.timeControlStatus == .playing {
@@ -119,17 +112,13 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
     
     func didTapForward() {
         if tracks.isEmpty {
-            // 앨범에 재생목록이 없다.
             player?.pause()
         }
-        else if let firstItem = playerQueue?.items().first {
-            playerQueue?.pause()
-            playerQueue?.removeAllItems()
-            playerQueue = AVQueuePlayer(items: [firstItem])
-            playerQueue?.play()
-            //->저작권 문제를 위해서는 테스트를 제외하고 볼륨을 항상 0으로
-            playerQueue?.volume = 1
-//            playerQueue?.volume = 0
+        else if let player = playerQueue {
+            player.advanceToNextItem()
+            index += 1
+            print(index)
+            playerVC?.refreshUI()
         }
     }
     
@@ -138,12 +127,21 @@ extension PlaybackPresenter: PlayerViewControllerDelegate {
             // 앨범에 재생목록이 없다.
             player?.pause()
             player?.play()
-        } else if let player = playerQueue {
-            playerQueue?.advanceToNextItem()
+            
+        } else if let firstItem = playerQueue?.items().first {
+            playerQueue?.pause()
+            playerQueue?.removeAllItems()
+            playerQueue = AVQueuePlayer(items: [firstItem])
+            playerQueue?.play()
+            //->저작권 문제를 위해서는 테스트를 제외하고 볼륨을 항상 0으로
+            playerQueue?.volume = 0
+            
         }
     }
     
-    
+    func didSlideSlider(_ value: Float) {
+        player?.volume = value
+    }
 }
 
 extension PlaybackPresenter: PlayerDataSource {
@@ -156,7 +154,6 @@ extension PlaybackPresenter: PlayerDataSource {
     }
     
     var imageURL: URL? {
-        print("images: \(currentTrack?.album?.images.first)")
         return URL(string: currentTrack?.album?.images.first?.url ?? "")
     }
 }
