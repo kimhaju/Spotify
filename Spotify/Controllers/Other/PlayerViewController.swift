@@ -41,6 +41,7 @@ class PlayerViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         imageView.frame = CGRect(x: 0, y: view.safeAreaInsets.top, width: view.width, height: view.width)
+        
         controlsView.frame = CGRect(
             x: 10,
             y: imageView.bottom+10,
@@ -72,6 +73,7 @@ class PlayerViewController: UIViewController {
     @objc private func didTapAction() {
         // 액션
     }
+    
     func refreshUI() {
         
         configure()
@@ -79,14 +81,12 @@ class PlayerViewController: UIViewController {
 }
 
 extension PlayerViewController: PlayerControlsViewDelegate {
-   
     func playerControlsViewDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView) {
         delegate?.didTapPlayPause()
     }
     
     func playerControlsViewDidTapForwardButton(_ playerControlsView: PlayerControlsView) {
         delegate?.didTapForward()
-        
     }
     
     func playerControlsViewDidTapBackwardsButton(_ playerControlsView: PlayerControlsView) {
@@ -96,5 +96,5 @@ extension PlayerViewController: PlayerControlsViewDelegate {
     func playerControlsView(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float) {
         delegate?.didSlideSlider(value)
     }
-    
 }
+

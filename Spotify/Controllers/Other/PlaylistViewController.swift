@@ -22,7 +22,6 @@ class PlaylistViewController: UIViewController {
             item.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 2, bottom: 1, trailing: 2)
             
             // 그룹
-          
             let group = NSCollectionLayoutGroup.vertical(
                 layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1),
@@ -70,7 +69,6 @@ class PlaylistViewController: UIViewController {
         view.backgroundColor = .systemBackground
         
         view.addSubview(collectionView)
-        
         collectionView.register(
             RecommendedTrackCollectionViewCell.self,
             forCellWithReuseIdentifier: RecommendedTrackCollectionViewCell.identifier
@@ -89,6 +87,7 @@ class PlaylistViewController: UIViewController {
                 switch result {
                 case .success(let model):
                     // RecommendedTrackCellViewModel 을 표시
+                    //->실제 재생목록 배열 트랙
                     self?.tracks = model.tracks.items.compactMap({ $0.track })
                     self?.viewModels = model.tracks.items.compactMap({
                         RecommendedTrackCellViewModel(

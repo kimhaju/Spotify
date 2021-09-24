@@ -12,8 +12,11 @@ protocol PlayerControlsViewDelegate: AnyObject {
     //->프로토콜의 필수 메서드 채택해야 하는 타입은 이걸 구현해줘야함.
     // 함수가 1개 이상이라면 클로저를 두세개 쓰는 것보다 프로토콜이 이득.
     func playerControlsViewDidTapPlayPauseButton(_ playerControlsView: PlayerControlsView)
+    
     func playerControlsViewDidTapForwardButton(_ playerControlsView: PlayerControlsView)
+    
     func playerControlsViewDidTapBackwardsButton(_ playerControlsView: PlayerControlsView)
+    
     func playerControlsView(_ playerControlsView: PlayerControlsView, didSlideSlider value: Float)
 }
 
@@ -37,7 +40,7 @@ final class PlayerControlsView: UIView {
     
     private let nameLabel: UILabel = {
        let label = UILabel()
-        label.text = "This is my Songs"
+//        label.text = "This is my Songs"
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 20, weight: .semibold)
         return label
@@ -45,7 +48,7 @@ final class PlayerControlsView: UIView {
     
     private let subtitleLabel: UILabel = {
        let label = UILabel()
-        label.text = "피쳐링"
+//        label.text = "피쳐링"
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 18, weight: .regular)
         label.textColor = .secondaryLabel
@@ -94,8 +97,10 @@ final class PlayerControlsView: UIView {
         
         //이전
         backButton.addTarget(self, action: #selector(didTapBack), for: .touchUpInside)
+        
         // 다음
         nextButton.addTarget(self, action: #selector(didTapNext), for: .touchUpInside)
+        
         //일시중지
         playPauseButton.addTarget(self, action: #selector(didTapPlayPause), for: .touchUpInside)
         

@@ -13,7 +13,7 @@ import UIKit
 protocol PlayerDataSource: AnyObject {
     var songName: String? { get }
     var subtitle: String? { get }
-    var imageURL: URL? { get } 
+    var imageURL: URL? { get }
 }
 
 //->재생을 구현해보자. 실제로 재생할수 있도록
@@ -28,10 +28,15 @@ final class PlaybackPresenter {
     
     var currentTrack: AudioTrack? {
         if let track = track, tracks.isEmpty {
+//            print("\(tracks.isEmpty)")
+            //->비어있는 것을 확인했다. 왜 비었는지 원인을 찾고다녔지만 결국 못찾아서 이문제는 잠시 보류 이거 해결못하면 그냥 조건없이 다음버튼 누르면 넘어가는 식으로 진행하면 될듯
+            
             return track
         }
+        //->지금 트랙이 비어있어서 트랙을 그대로 반환한다, 왜 트랙이 nil인지 이유를 찾아보자
         else if let player = self.playerQueue, !tracks.isEmpty {
             return tracks[index]
+           
         }
         return nil
     }
@@ -49,7 +54,8 @@ final class PlaybackPresenter {
             return
         }
         player = AVPlayer(url: url)
-        player?.volume = 0.0
+        //->테스트 할때만 여기 0.5 그 외네는 0.0
+        player?.volume = 0.5
         
         self.track = track
         self.tracks = []

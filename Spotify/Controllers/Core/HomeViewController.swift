@@ -162,7 +162,7 @@ class HomeViewController: UIViewController {
         group.notify(queue: .main) {
             guard let newAlbums = newRealeses?.albums.items,
                   let playlists = featuredPlaylist?.playlists.items,
-                  let trakcs = recommendations?.tracks else {
+                  let tracks = recommendations?.tracks else {
 //                fatalError("모델이 존재하지 않습니다.")
                 return
             }
@@ -170,7 +170,7 @@ class HomeViewController: UIViewController {
             self.configureModels(
                 newAlbums: newAlbums,
                 playlists: playlists,
-                tracks: trakcs
+                tracks: tracks
             )
         }
     }
@@ -280,6 +280,7 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         collectionView.deselectItem(at: indexPath, animated: true)
         let section = sections[indexPath.section]
         switch section {
+        
         case .featuredPlaylists:
             let playlist = playlists[indexPath.row]
             let vc = PlaylistViewController(playlist: playlist)
@@ -293,10 +294,10 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
             vc.title = album.name
             vc.navigationItem.largeTitleDisplayMode = .never
             navigationController?.pushViewController(vc, animated: true)
+            
         case .recommendedTracks:
             let track = tracks[indexPath.row]
             PlaybackPresenter.shared.startPlayback(from: self, track: track)
-            break
         }
     }
     //->타이틀 헤더 뷰
