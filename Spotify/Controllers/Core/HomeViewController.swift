@@ -61,11 +61,54 @@ class HomeViewController: UIViewController {
         configureCollectionView()
         view.addSubview(spinner)
         fetchData()
+        addLongTapGesture()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         collectionView.frame = view.bounds
+    }
+    
+    private func addLongTapGesture() {
+        //->제스쳐 참조를 전달
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        collectionView.isUserInteractionEnabled = true
+        collectionView.addGestureRecognizer(gesture)
+    }
+    
+    //->길게 누르면 재생목록 추가 해주는 기능을 만들려고 함
+    @objc func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        
+        let touchPoint = gesture.location(in: collectionView)
+        print("터치 포인트 \(touchPoint)")
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint), indexPath.section == 2 else {
+            return
+        }
+        let model = tracks[indexPath.row]
+        
+        let actionSheet = UIAlertController(
+            title: model.name,
+            message: "플레이 리스트에 추가 하시겠습니까?",
+            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        actionSheet.addAction(UIAlertAction(title: "Add to Playlist", style: .default, handler: { _ in
+            //->디스패치 메인큐는 기본적으로 비동기 방식으로 작동한다
+            DispatchQueue.main.async {
+                let vc = LibraryPlaylistsViewController()
+                vc.selectionHandler = { playlist in
+                    APICaller.shared.addTrackToPlaylist(track: model, playlist: playlist) { success in
+                        print("플레이리스트에 추가하는데 성공했습니다!")
+                    }
+                }
+                vc.title = "Select Playlist"
+                self.present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+            }
+        }))
+        present(actionSheet, animated: true)
     }
     
     private func configureCollectionView() {
@@ -163,8 +206,7 @@ class HomeViewController: UIViewController {
             guard let newAlbums = newRealeses?.albums.items,
                   let playlists = featuredPlaylist?.playlists.items,
                   let tracks = recommendations?.tracks else {
-//                fatalError("모델이 존재하지 않습니다.")
-                return
+                fatalError("모델이 존재하지 않습니다.")
             }
             print("뷰 모델 구성")
             self.configureModels(
