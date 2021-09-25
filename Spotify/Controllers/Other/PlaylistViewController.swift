@@ -8,6 +8,10 @@
 import UIKit
 
 class PlaylistViewController: UIViewController {
+    
+    private let playlist: Playlist
+    
+    public var isOwner = false
 
     //->사용했던 디자인 재탕
     private let collectionView = UICollectionView(
@@ -47,8 +51,6 @@ class PlaylistViewController: UIViewController {
             
         })
     )
-    
-    private let playlist: Playlist
     
     init(playlist: Playlist) {
         self.playlist = playlist
@@ -107,7 +109,53 @@ class PlaylistViewController: UIViewController {
             target: self,
             action: #selector(didTapShare)
         )
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(_:)))
+        collectionView.addGestureRecognizer(gesture)
     }
+    
+    @objc func didLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else {
+            return
+        }
+        let touchPoint = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: touchPoint) else {
+            return
+        }
+        let trackToDelete = tracks[indexPath.row]
+        
+        let actionSheet = UIAlertController(title: trackToDelete.name,
+                                            message: "해당 음악을 리스트에서 지우겠습니까?",
+                                            preferredStyle: .actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel",
+                                            style: .cancel,
+                                            handler: nil))
+        actionSheet.addAction(
+            UIAlertAction(
+                title: "Remove",
+                style: .destructive,
+                handler: { [weak self] _ in
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    APICaller.shared.removeTrackFromPlalist(track: trackToDelete, playlist: strongSelf.playlist) { success in
+                        DispatchQueue.main.async {
+                            if success {
+                                // 트랙을 제거
+                                strongSelf.tracks.remove(at: indexPath.row)
+                                strongSelf.viewModels.remove(at: indexPath.row)
+                                strongSelf.collectionView.reloadData()
+                            }
+                            else {
+                                print("지우는데 실패")
+                            }
+                        }
+                    }
+                    
+                }))
+        present(actionSheet, animated: true, completion: nil)
+    }
+    
     
     @objc private func didTapShare() {
         guard let url = URL(string: playlist.external_urls["spotify"] ?? "") else {

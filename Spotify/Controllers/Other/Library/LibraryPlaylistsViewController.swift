@@ -58,6 +58,7 @@ class LibraryPlaylistsViewController: UIViewController {
         )
     }
     
+    //->유저 재생 최신목록
     private func fetchData() {
         APICaller.shared.getCurrentUserPlaylists{ [weak self] result in
             DispatchQueue.main.async {
@@ -85,7 +86,7 @@ class LibraryPlaylistsViewController: UIViewController {
             tableView.isHidden = false
         }
     }
-    
+    //->플레이리스트 추가 메서드
     public func showCreatePlaylistAlert() {
         let alert = UIAlertController(
             title: "New Playlists",
@@ -153,6 +154,7 @@ extension LibraryPlaylistsViewController: UITableViewDelegate, UITableViewDataSo
         }
         let vc = PlaylistViewController(playlist: playlist)
         vc.navigationItem.largeTitleDisplayMode = .never
+        vc.isOwner = true
         navigationController?.pushViewController(vc, animated: true)
         
     }

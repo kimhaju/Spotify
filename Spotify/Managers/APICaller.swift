@@ -76,6 +76,8 @@ final class APICaller {
         }
     }
     
+    // MARK: - 유저들 최신 재생목록 생성
+    
     public func getCurrentUserPlaylists(completion: @escaping (Result<[Playlist], Error>) -> Void) {
         createRequest(
             with: URL(string: Constants.baseAPIURL + "/me/playlists/?limit=50"),
@@ -98,6 +100,8 @@ final class APICaller {
             task.resume()
         }
     }
+    
+    // MARK:  -플레이리스트 생성하기
     
     public func createPlaylist(with name: String, completion: @escaping(Bool) -> Void) {
         getCurrentUserProfile { [weak self] result in
@@ -142,6 +146,8 @@ final class APICaller {
         }
     }
     
+    // MARK: -플레이리스트 항목 추가
+    
     public func addTrackToPlaylist(
         track: AudioTrack,
         playlist: Playlist,
@@ -183,11 +189,46 @@ final class APICaller {
         }
     }
     
+    // MARK: -플레이리스트 삭제하기
     public func removeTrackFromPlalist(
         track: AudioTrack,
         playlist: Playlist,
         completion: @escaping (Bool) -> Void
-    ) {}
+    ) {
+        createRequest(with: URL(string: Constants.baseAPIURL + "/playlists/\(playlist.id)/tracks"),
+                      type: .DELETE) { baseRequest in
+            var request = baseRequest
+            let json: [String: Any] = [
+                "tracks": [
+                    [
+                        "uri": "spotify:track:\(track.id)"
+                    ]
+                ]
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: .fragmentsAllowed)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(false)
+                    return
+                }
+                do {
+                    let result = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                    if let response = result as? [String: Any], response["snapshot_id"] as? String != nil {
+                        completion(true)
+                    }
+                    else {
+                        completion(false)
+                    }
+                }
+                catch {
+                    completion(false)
+                    
+                }
+            }
+            task.resume()
+        }
+    }
    
     
     // MARK: -프로파일
@@ -387,6 +428,7 @@ final class APICaller {
     enum HTTPMethod: String {
         case GET
         case POST
+        case DELETE
     }
     
     private func createRequest(
