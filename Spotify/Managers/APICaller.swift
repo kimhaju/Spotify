@@ -51,6 +51,45 @@ final class APICaller {
         }
     }
     
+    public func getCurrentUserAlbums(completion: @escaping (Result<[Album], Error>) -> Void ) {
+        createRequest(with: URL(string: Constants.baseAPIURL + "/me/albums"), type: .GET)
+        { request in
+            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+                guard let data = data, error == nil else {
+                    completion(.failure(APIError.failedTogetData))
+                    return
+                }
+                do {
+                    let result = try JSONDecoder().decode(LibraryAlbumsResponse.self, from: data)
+                    completion(.success(result.items.compactMap({ $0.album })))
+                }
+                catch {
+                    completion(.failure(error))
+                }
+            }
+            task.resume()
+        }
+    }
+    //->특이하게도 앨범을 저장하는 api는 스테이터스 코드 201로만 받는다.
+    public func saveAlbum(album: Album, completion: @escaping (Bool)->Void){
+        createRequest(with: URL(string: Constants.baseAPIURL + "/me/albums?ids=\(album.id)"),
+                      type: .PUT)
+        { baseRequest in
+            var request = baseRequest
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                guard let code = (response as? HTTPURLResponse)?.statusCode,
+                    error == nil else {
+                    completion(false)
+                    return
+                }
+//                print(code)
+                completion(code == 200)
+            }
+            task.resume()
+        }
+    }
+    
     // MARK: -플레이리스트
     
     public func getPlaylistDetails(for playlist: Playlist, completion: @escaping (Result<PlaylistDetailsResponse, Error>) -> Void) {
@@ -327,7 +366,7 @@ final class APICaller {
         }
     }
 
-    //->추천 목록 가져오기 
+    // MARK: ->추천 목록 가져오기
     public func getRecommededGenres(completion: @escaping ((Result<RecommendedGenresResponse, Error>) -> Void)) {
         createRequest(
             with: URL(string: Constants.baseAPIURL + "/recommendations/available-genre-seeds"),
@@ -426,6 +465,7 @@ final class APICaller {
     // MARK: -private
     
     enum HTTPMethod: String {
+        case PUT
         case GET
         case POST
         case DELETE

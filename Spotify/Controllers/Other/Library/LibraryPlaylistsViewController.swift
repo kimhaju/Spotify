@@ -86,7 +86,7 @@ class LibraryPlaylistsViewController: UIViewController {
             tableView.isHidden = false
         }
     }
-    //->플레이리스트 추가 메서드
+    //->플레이리스트 추가 메서드: 나중에 추가 기능 넣을때 참고하기 
     public func showCreatePlaylistAlert() {
         let alert = UIAlertController(
             title: "New Playlists",
