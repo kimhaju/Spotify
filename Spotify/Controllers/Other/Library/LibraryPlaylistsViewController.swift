@@ -86,7 +86,7 @@ class LibraryPlaylistsViewController: UIViewController {
             tableView.isHidden = false
         }
     }
-    //->플레이리스트 추가 메서드: 나중에 추가 기능 넣을때 참고하기 
+    //->플레이리스트 추가 메서드: 나중에 추가 기능 넣을때 참고하기
     public func showCreatePlaylistAlert() {
         let alert = UIAlertController(
             title: "New Playlists",
@@ -106,10 +106,12 @@ class LibraryPlaylistsViewController: UIViewController {
             }
             APICaller.shared.createPlaylist(with: text) { [weak self] success in
                 if success {
+                    HapticsManager.shared.vibrate(for: .success)
                     // 재생목록 새로고침
                     self?.fetchData()
                 }
                 else {
+                    HapticsManager.shared.vibrate(for: .error)
                     print("플레이 리스트를 만드는데 실패했습니다.")
                 }
             }
@@ -145,7 +147,7 @@ extension LibraryPlaylistsViewController: UITableViewDelegate, UITableViewDataSo
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
+        HapticsManager.shared.vibrateForSelection()
         let playlist = playlists[indexPath.row]
         guard selectionHandler == nil else {
             selectionHandler?(playlist)

@@ -7,6 +7,7 @@
 
 import UIKit
 
+//->톱니바퀴를 클릭하면 나오는 곳
 class SettingsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     private let tableView: UITableView = {
@@ -40,7 +41,26 @@ class SettingsViewController: UIViewController, UITableViewDelegate, UITableView
         })]))
     }
     private func signOutTapped() {
-        
+        let alert = UIAlertController(title: "Sign Out",
+                                      message: "로그아웃 하시겠습니까?",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Sign Out", style: .destructive, handler: { _ in
+            AuthManager.shared.signOut { [weak self] signOut in
+                if signOut {
+                    DispatchQueue.main.async {
+                        let navVC = UINavigationController(rootViewController: WelcomeViewController())
+                        navVC.navigationBar.prefersLargeTitles = true
+                        navVC.viewControllers.first?.navigationItem.largeTitleDisplayMode = .always
+                        navVC.modalPresentationStyle = .fullScreen
+                        self?.present(navVC, animated: true, completion: {
+                            self?.navigationController?.popToRootViewController(animated: false)
+                        })
+                    }
+                }
+            }
+        }))
+        present(alert, animated: true)
     }
     
     private func viewProfile() {
