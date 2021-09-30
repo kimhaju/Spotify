@@ -14,8 +14,8 @@ final class AuthManager {
     struct Constants {
         //->914 주의해야할점: 만지다 보니까 실수로 토큰글자를 지우거나 빼먹은게 있었다.
         // 만지면서 조심하기
-        static let clientID = "9e5c28f29f4f439d9c674c7ebe4ca888"
-        static let clientSecret = "6a328b701d074925b10b409ee257df1a"
+        static let clientID = "보안"
+        static let clientSecret = "보안"
         static let tokenAPIURL = "https://accounts.spotify.com/api/token"
         static let redirectURI = "http://localhost:8888/callback/"
         //->약관은 이정도면 충분할거 같아서 이것만 추가 
